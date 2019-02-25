@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.rafaeldantas.workshopmongodb.domain.Post;
 import com.rafaeldantas.workshopmongodb.domain.User;
 import com.rafaeldantas.workshopmongodb.dto.UserDTO;
 import com.rafaeldantas.workshopmongodb.services.UserService;
@@ -40,26 +41,30 @@ public class UserResource {
 
 	@PostMapping
 	public ResponseEntity<UserDTO> insert(@RequestBody UserDTO userDTO) {
-		User obj = service.insert(service.fromDTO(userDTO));		
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-				.path("/{id}").buildAndExpand(obj.getId()).toUri();
-		
+		User obj = service.insert(service.fromDTO(userDTO));
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
+
 		return ResponseEntity.created(uri).build();
 	}
-	
+
 	@DeleteMapping(value = "/{id}")
 	public ResponseEntity<Void> delete(@PathVariable String id) {
 		service.delete(id);
 		return ResponseEntity.noContent().build();
 	}
-	
+
 	@PutMapping(value = "/{id}")
 	public ResponseEntity<UserDTO> update(@RequestBody UserDTO userDTO, @PathVariable String id) {
 		User obj = service.fromDTO(userDTO);
 		obj.setId(id);
 		obj = service.update(obj);
-		
+
 		return ResponseEntity.noContent().build();
-	}		
+	}
+
+	@GetMapping(value = "/{id}/posts")
+	public ResponseEntity<List<Post>> findPosts(@PathVariable String id) {
+		return ResponseEntity.ok().body(service.findById(id).getPosts());
+	}
 
 }
